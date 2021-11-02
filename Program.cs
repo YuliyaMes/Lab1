@@ -36,12 +36,12 @@ namespace Lab1
 
 		abstract class V3Data
 		{
-			public string obj { get; set; }
+			public string id_data { get; set; }
 			public DateTime tm { get; set; }
 			protected V3Data() {}
 			public V3Data(string a, DateTime t)
 			{
-				obj = a;
+				id_data = a;
 				tm = t;
 			}
 			public abstract int Count { get; }
@@ -49,11 +49,7 @@ namespace Lab1
 			public abstract string ToLongString(string format);
 			public override string ToString()
 			{
-				return String.Format("V3Data obj = {0}, tm = {1}\n\n", obj, tm);
-			}
-			public bool Equals(V3Data other)
-			{
-				return (this.obj == other.obj);
+				return String.Format("V3Data id_data = {0}, tm = {1}\n\n", id_data, tm);
 			}
 		}
 			
@@ -62,7 +58,7 @@ namespace Lab1
 			public List<DataItem> data_list { get; }
 			public V3DataList(string ob, DateTime t)
 			{
-				obj = ob;
+				id_data = ob;
 				tm = t;
 				data_list = new List<DataItem>();
 			}
@@ -119,11 +115,11 @@ namespace Lab1
 			}
 			public override string ToString()
 			{
-				return String.Format("V3DataList {0} {1} Count = {2}\n\n", obj, tm, Count);
+				return String.Format("V3DataList {0} {1} Count = {2}\n\n", id_data, tm, Count);
 			}
 			public override string ToLongString(string format)
 			{
-				string str = String.Format("V3DataList {0} {1} Count = {2}\n", obj, tm, Count);
+				string str = String.Format("V3DataList {0} {1} Count = {2}\n", id_data, tm, Count);
 				foreach (DataItem it in data_list)
 				{
 					str = str + String.Format("point = ({0}, {1})  field = {2}   mod = {3}\n", it.x, it.y, it.vec.ToString(format), it.vec.Length().ToString(format));
@@ -142,13 +138,13 @@ namespace Lab1
 			public Vector2[,] data_m { get; }
 			public V3DataArray(string a, DateTime t)
 			{
-				obj = a;
+				id_data = a;
 				tm = t;
 				data_m = new Vector2[0, 0];
 			}
 			public V3DataArray(string a, DateTime t, int nx, int ny, double sx, double sy, FdblVector2 F)
 			{
-				obj = a;
+				id_data = a;
 				tm = t;
 				num_x = nx;
 				num_y = ny;
@@ -174,17 +170,18 @@ namespace Lab1
 			{
 				get
 				{
+					if (num_x == 0 || num_y == 0) return 0;
 					return Math.Sqrt((num_x-1) * step_x * (num_x-1) * step_x + (num_y-1) * step_y * (num_y-1) * step_y);
 				}
 			}
 			public override string ToString()
 			{
-				return String.Format("V3DataArray {0} {1} num_x = {2} num_y = {3} step_x = {4} step_y = {5}\n\n", obj, tm, num_x, num_y, step_x, step_y);
+				return String.Format("V3DataArray {0} {1} num_x = {2} num_y = {3} step_x = {4} step_y = {5}\n\n", id_data, tm, num_x, num_y, step_x, step_y);
 			}
 			public override string ToLongString(string format)
 			{
 				double a, b;
-				string str = String.Format("V3DataArray {0} {1} num_x = {2} num_y = {3} step_x = {4} step_y = {5}\n", obj, tm, num_x, num_y, step_x, step_y);
+				string str = String.Format("V3DataArray {0} {1} num_x = {2} num_y = {3} step_x = {4} step_y = {5}\n", id_data, tm, num_x, num_y, step_x, step_y);
 				for (int i = 0; i < num_x; i++)
 				{
 					for (int j = 0; j < num_y; j++)
@@ -200,7 +197,7 @@ namespace Lab1
 			}
 			public static implicit operator V3DataList(V3DataArray arr)
 			{
-				V3DataList list = new V3DataList(arr.obj, arr.tm);
+				V3DataList list = new V3DataList(arr.id_data, arr.tm);
 				for (int i = 0; i < arr.num_x; i++)
 				{
 					for (int j = 0; j < arr.num_y; j++)
@@ -236,11 +233,16 @@ namespace Lab1
 			}
 			public bool Contains(string ID)
 			{
-				return (list_mc.Contains(new V3DataList(ID, DateTime.Now)));
+				bool is_in = false;
+				foreach (V3Data item in list_mc)
+                {
+					if (item.id_data == ID) is_in = true;
+                }
+				return is_in;
 			}
 			public bool Add(V3Data data)
 			{
-				if (this.Contains(data.obj))
+				if (this.Contains(data.id_data))
 				{
 					return false;
 				}
@@ -298,10 +300,11 @@ namespace Lab1
 			V3MainCollection collection_1 = new V3MainCollection();
 			collection_1.Add(array_1);
 			collection_1.Add(list_1);
-			collection_1.Add(new V3DataArray("array_2", DateTime.Now, 5, 1, 2.5, 1.0, Functions.Field3));
+			collection_1.Add(new V3DataArray("array_2", DateTime.Now, 5, 0, 2.5, 1.0, Functions.Field3));
 			V3DataList list_2 = new V3DataList("list_2", DateTime.Now);
 			list_2.AddDefaults(5, Functions.Field3);
 			collection_1.Add(list_2);
+			Console.WriteLine(collection_1.ToLongString("F3"));
 			collection_1.ToLongString("F3");
 			int count = collection_1.Count;
 			for (int i = 0; i < count; i++)
