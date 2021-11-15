@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -26,15 +27,11 @@ namespace Lab1
 			{
 				return String.Format("({0}, {1}) - {2}", x, y, vec.ToString());
 			}
-			public bool Equals(DataItem other)
-			{
-				return ((this.x == other.x) && (this.y == other.y));
-			}
 		}
 
 		delegate Vector2 FdblVector2(double x, double y);
 
-		abstract class V3Data
+		abstract class V3Data:IEnumerable
 		{
 			public string id_data { get; set; }
 			public DateTime tm { get; set; }
@@ -51,6 +48,7 @@ namespace Lab1
 			{
 				return String.Format("V3Data id_data = {0}, tm = {1}\n\n", id_data, tm);
 			}
+			public abstract IEnumerator GetEnumerator();
 		}
 			
 		class V3DataList : V3Data
@@ -127,7 +125,45 @@ namespace Lab1
 				str = str + "\n";
 				return str;
 			}
+			public override IEnumerator GetEnumerator()
+            {
+				return new V3DLEnum(this);
+            }
 		}	
+
+		class V3DLEnum:IEnumerator
+        {
+			private int current = -1;
+			V3DataList list;
+			public V3DLEnum(V3DataList list)
+            {
+				this.list = list;
+            }
+			public object Current
+            {
+				get
+                {
+					try
+					{
+						return list.data_list[current];
+					}
+					//catch (IndexOutOfRangeException)
+					//{
+					//	Console.WriteLine("Invalid iterator position.\n");
+					//	throw new InvalidOperationException();
+					//}
+                }
+            }
+			public void Reset()
+            {
+				current = -1;
+            }
+			public bool MoveNext()
+            {
+				current++;
+				return (current < list.data_list.Count);
+            }
+        }
 
 		class V3DataArray : V3Data
 		{
@@ -207,8 +243,46 @@ namespace Lab1
 				}
 				return list;
 			}
+			public override IEnumerator GetEnumerator()
+			{
+				return new V3DAEnum(this);
+			}
 		}
-			
+
+		class V3DAEnum : IEnumerator
+		{
+			private int current = -1;
+			V3DataArray array;
+			public V3DAEnum(V3DataArray array)
+			{
+				this.array = array;
+			}
+			public object Current
+			{
+				get
+				{
+					try
+					{
+						return list.data_list[current];
+					}
+					//catch (IndexOutOfRangeException)
+					//{
+					//	Console.WriteLine("Invalid iterator position.\n");
+					//	throw new InvalidOperationException();
+					//}
+				}
+			}
+			public void Reset()
+			{
+				current = -1;
+			}
+			public bool MoveNext()
+			{
+				current++;
+				return (current < list.data_list.Count);
+			}
+		}
+
 		class V3MainCollection
 		{
 			private List<V3Data> list;
