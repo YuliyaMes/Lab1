@@ -31,7 +31,7 @@ namespace Lab1
 
 		delegate Vector2 FdblVector2(double x, double y);
 
-		abstract class V3Data:IEnumerable
+		abstract class V3Data:IEnumerable<DataItem>
 		{
 			public string id_data { get; set; }
 			public DateTime tm { get; set; }
@@ -48,7 +48,11 @@ namespace Lab1
 			{
 				return String.Format("V3Data id_data = {0}, tm = {1}\n\n", id_data, tm);
 			}
-			public abstract IEnumerator GetEnumerator();
+			public abstract IEnumerator<DataItem> GetEnumerator();
+			IEnumerator IEnumerable.GetEnumerator()
+            {
+				return GetEnumerator();
+            }
 		}
 			
 		class V3DataList : V3Data
@@ -125,13 +129,13 @@ namespace Lab1
 				str = str + "\n";
 				return str;
 			}
-			public override IEnumerator GetEnumerator()
+			public override IEnumerator<DataItem> GetEnumerator()
             {
 				return new V3DLEnum(this);
             }
 		}	
 
-		class V3DLEnum:IEnumerator
+		class V3DLEnum:IEnumerator<DataItem>
         {
 			private int current = -1;
 			V3DataList list;
@@ -139,21 +143,10 @@ namespace Lab1
             {
 				this.list = list;
             }
-			public object Current
-            {
-				get
-                {
-					try
-					{
-						return list.data_list[current];
-					}
-					//catch (IndexOutOfRangeException)
-					//{
-					//	Console.WriteLine("Invalid iterator position.\n");
-					//	throw new InvalidOperationException();
-					//}
-                }
-            }
+			public DataItem Current
+            { get{ return list.data_list[current]; } }
+			object IEnumerator.Current
+			{ get { return Current; } }
 			public void Reset()
             {
 				current = -1;
@@ -243,13 +236,13 @@ namespace Lab1
 				}
 				return list;
 			}
-			public override IEnumerator GetEnumerator()
+			public override IEnumerator<DataItem> GetEnumerator()
 			{
 				return new V3DAEnum(this);
 			}
 		}
 
-		class V3DAEnum : IEnumerator
+		class V3DAEnum : IEnumerator<DataItem>
 		{
 			private int current = -1;
 			V3DataArray array;
